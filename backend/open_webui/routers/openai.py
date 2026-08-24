@@ -95,7 +95,8 @@ async def send_get_request(
     config=None,
 ):
     try:
-        async with aiohttp.ClientSession(timeout=_MODEL_LIST_TIMEOUT, trust_env=True) as session:
+        connector = aiohttp.TCPConnector(resolver=aiohttp.ThreadedResolver())
+        async with aiohttp.ClientSession(connector=connector, timeout=_MODEL_LIST_TIMEOUT, trust_env=True) as session:
             if request and config:
                 headers, cookies = await get_headers_and_cookies(request, url, key, config, user=user)
             else:
@@ -803,7 +804,9 @@ async def verify_connection(
 
     api_config = form_data.config or {}
 
+    connector = aiohttp.TCPConnector(resolver=aiohttp.ThreadedResolver())
     async with aiohttp.ClientSession(
+        connector=connector,
         trust_env=True,
         timeout=_MODEL_LIST_TIMEOUT,
     ) as session:
