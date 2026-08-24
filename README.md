@@ -1,20 +1,10 @@
-# Open WebUI 👋
+# Open WebUI - Task Log & Project Summary
 
-![GitHub stars](https://img.shields.io/github/stars/open-webui/open-webui?style=social)
-![GitHub forks](https://img.shields.io/github/forks/open-webui/open-webui?style=social)
-![GitHub watchers](https://img.shields.io/github/watchers/open-webui/open-webui?style=social)
-![GitHub repo size](https://img.shields.io/github/repo-size/open-webui/open-webui)
-![GitHub language count](https://img.shields.io/github/languages/count/open-webui/open-webui)
-![GitHub top language](https://img.shields.io/github/languages/top/open-webui/open-webui)
-![GitHub last commit](https://img.shields.io/github/last-commit/open-webui/open-webui?color=red)
-[![Discord](https://img.shields.io/badge/Discord-Open_WebUI-blue?logo=discord&logoColor=white)](https://discord.gg/5rJgQTnV4s)
-[![](https://img.shields.io/static/v1?label=Sponsor&message=%E2%9D%A4&logo=GitHub&color=%23fe8e86)](https://github.com/sponsors/open-webui)
+This document logs local environment setup steps, custom fixes, completed tasks, and future backlog items for this Open WebUI repository instance.
 
 ---
 
-## 📋 Task Log & Project Summary
-
-This section logs environment setup steps, custom fixes, and completed tasks for this Open WebUI repository instance.
+## Task Log
 
 ### Task 1: Local Environment Setup & Windows Fixes
 * **Date:** August 24, 2026
@@ -64,7 +54,21 @@ This section logs environment setup steps, custom fixes, and completed tasks for
 
 ---
 
-![Open WebUI Banner](./banner.png)
+## Future Tasks / Backlog
+
+### Task 4 (Planned): File System Prompt Enhancements & Bug Fixes
+* **Status:** Planned / Backlog
+* **Objective:** Further improve usability, bug fixes, and visibility for custom file system prompts:
+  * **Bug - Edit Message with Files missing Custom System Prompt:** Fix an issue where editing an existing message that contains attached files does not display or allow customizing the system prompt option (`FileSystemPrompt` component missing in message edit context).
+  * **Recent System Prompts History Quick Pick:** Display the 2 most recently used custom system prompts (retrieved from the current/previous chat history) as quick template buttons inside the `FileSystemPrompt` drawer so users can re-use their latest custom prompts with one click.
+  * **Tooltip for Custom System Prompt:** Add an interactive tooltip to the `⚡ System Prompt Active` chip showing a full preview of the custom system prompt when hovered/focused.
+  * **Chat History Indicator for File System Prompt:** Add a visual badge/indicator in past chat messages (e.g. on file attachment components or message header) indicating that the file/query was sent with a custom system prompt, with the ability to click or hover to view the exact injected system prompt text.
+
+### Task 5 (Planned): Create Generic Helpers for Settings Management
+* **Status:** Planned / Backlog
+* **Objective:** Refactor settings components (e.g. `src/lib/components/chat/Settings/Interface.svelte`) by creating generic handler utilities instead of duplicating logic across individual fields:
+  * **Generic Boolean Toggle Helper:** A reusable function/handler to toggle boolean fields without repeating individual `toggle...()` functions for each switch.
+  * **Generic Field Update Helper:** A standardized input change handler to update target setting keys/fields dynamically.
 
 **Open WebUI is an [extensible](https://docs.openwebui.com/features/extensibility/plugin), feature-rich, and user-friendly self-hosted AI platform designed to operate entirely offline.** It supports various LLM runners like **Ollama** and **OpenAI-compatible APIs**, with **built-in inference engine** for RAG, making it a **powerful AI deployment solution**.
 
