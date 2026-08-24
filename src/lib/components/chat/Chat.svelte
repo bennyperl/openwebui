@@ -2765,12 +2765,12 @@
 		prompt = '';
 		const _files = structuredClone(files);
 		files = [];
+
+		await submitPrompt(userPrompt, _files);
+
 		if (params?.system) {
 			delete params.system;
 		}
-		messageInput?.setText('');
-
-		await submitPrompt(userPrompt, _files);
 	};
 
 	const sendMessage = async (
