@@ -10,6 +10,60 @@
 [![Discord](https://img.shields.io/badge/Discord-Open_WebUI-blue?logo=discord&logoColor=white)](https://discord.gg/5rJgQTnV4s)
 [![](https://img.shields.io/static/v1?label=Sponsor&message=%E2%9D%A4&logo=GitHub&color=%23fe8e86)](https://github.com/sponsors/open-webui)
 
+---
+
+## 📋 Task Log & Project Summary
+
+This section logs environment setup steps, custom fixes, and completed tasks for this Open WebUI repository instance.
+
+### Task 1: Local Environment Setup & Windows Fixes
+* **Date:** August 24, 2026
+* **Status:** Completed
+* **Commit:** `6666346f5` (`fix(local-setup): fix Windows secret key generation and set ThreadedResolver for Windows local setup`)
+* **Summary of Changes:**
+  1. **Fixed `start_windows.bat` Secret Key Generation:**
+     * Resolved batch script syntax errors (`SET /P` redirection failure) that generated repeated `"The system cannot find the file specified"` errors and prevented `.webui_secret_key` creation.
+     * Implemented secure random key generation using Python's standard `secrets` module.
+  2. **Fixed OpenRouter / External API DNS Resolution (`ClientConnectorDNSError`):**
+     * Fixed an issue where `aiohttp` using `aiodns` / `c-ares` failed DNS lookups for `openrouter.ai` on Windows hosts.
+     * Configured `aiohttp.ThreadedResolver()` in `backend/open_webui/utils/session_pool.py` and `backend/open_webui/routers/openai.py` to use native OS system DNS resolution (`getaddrinfo`).
+  3. **Configured OpenRouter API Integration:**
+     * Setup API Base URL (`https://openrouter.ai/api/v1`) and API key configuration for external LLM routing.
+
+### Task 2: Make User Interface Settings Save via Manual Save Button
+* **Date:** August 24, 2026
+* **Status:** Completed
+* **Summary of Changes:**
+  * Updated User Interface settings (`src/lib/components/chat/Settings/Interface.svelte`) so that settings are no longer auto-saved on every single toggle/input change.
+  * Aligned User Interface settings behavior with Admin Interface settings: all option changes bind locally, and backend/store updates are triggered only when clicking the form's **Save** button.
+
+### Task 3: File System Prompt Injection Feature
+* **Date:** August 24, 2026
+* **Status:** Completed
+* **Summary of Changes & Architectural Decision:**
+  * **UX & Interaction Design:** Added an interactive System Prompt trigger chip (`+ Add File System Prompt`) and an expandable inline editing container directly above the message composer (`src/lib/components/chat/MessageInput.svelte`).
+  * **Design Rationale & Decisions:**
+    1. **Single System Prompt for File Attachments:** For now, one unified system prompt controls instructions across all attached files in the prompt. This avoids clutter while providing clear guidance to the model.
+    2. **Quick Actions for Convenience:** Integrated quick template chips (`Summarize`, `Extract Data`) to allow users to quickly insert common file instructions with one click.
+    3. **On-Demand (Click-to-Open) Container:** Since file-specific system prompt overrides can be either a day-to-day need or an edge case depending on the user, the container opens **only on click** and is not expanded by default, keeping the chat input clean.
+    4. **Applied Indicator & Save Feedback:** Added an **"Apply & Save"** button inside the container that triggers a toast notification (`"File system prompt saved and applied!"`) and turns the chip into an active state indicator (`⚡ System Prompt Active` with a pulsing green status dot) so the user has clear, immediate feedback that their system prompt is applied.
+    5. **Post-Submission Reset:** Upon sending the message in `submitHandler`, `params.system` is automatically cleared so the custom file system prompt does not remain active for subsequent messages in the chat session.
+  * **State Binding:** Connected `params.system` binding through `Chat.svelte`, `Placeholder.svelte`, and `MessageInput.svelte` so the system prompt flows to the model request payload and persists with the chat session.
+
+### Task 4: Workspace Chats Management Tab
+* **Date:** August 25, 2026
+* **Status:** Completed
+* **Summary of Changes & Architectural Decision:**
+  1. **Workspace Navigation & Route:** Added `'chats'` section to `WorkspaceSection` type and `workspaceCounts` store (`src/lib/stores/index.ts`), created `/workspace/chats` route (`src/routes/(app)/workspace/chats/+page.svelte`), and added the "Chats" navigation tab to `src/routes/(app)/workspace/+layout.svelte`.
+  2. **Shared `ChatList` Component & Model Display:** Refactored `Chats.svelte` to reuse `ChatList.svelte` (the same component used on the main home page). Extended `ChatList.svelte` with `showModel` prop to display the model pill in a dedicated column with header sorting for `title`, `model`, and `updated_at`.
+  3. **Inline Chat Title Editing:** Added an inline edit pencil icon next to the chat name text (in `ChatList.svelte`). Clicking the icon allows inline editing, and the title updates locally immediately with backend persistence (`updateChatById`) when editing ends (pressing `Enter` or clicking `Save`). If the title remains unchanged, saving exits silently without triggering an unnecessary API call or toast notification.
+  4. **Permission Integration:** Extended workspace permission checks (`canViewChats = $user?.role === 'admin' || ($user?.permissions?.workspace?.chats ?? true)`) across `+layout.svelte`, `Sidebar.svelte`, and `Permissions.svelte`.
+  * **Architectural Note on Chat Model Info & Backend Endpoint:**
+    * *Current Frontend-Only Implementation:* The `GET /api/v1/chats/` list endpoint returns lightweight summary data omiting model information. To display the used model in the Workspace Chats list, full chat data for each item is fetched asynchronously via `getChatById`.
+    * *Fullstack Architecture Note:* In a fullstack task scope with backend access, the optimal solution would be to update the backend endpoint (`GET /api/v1/chats/` in `backend/open_webui/routers/chats.py` and `ChatTitleIdResponse` schema) to include the `models` / `model` field directly in the summary payload. This would eliminate all N+1 `getChatById` HTTP requests on the client.
+
+---
+
 ![Open WebUI Banner](./banner.png)
 
 **Open WebUI is an [extensible](https://docs.openwebui.com/features/extensibility/plugin), feature-rich, and user-friendly self-hosted AI platform designed to operate entirely offline.** It supports various LLM runners like **Ollama** and **OpenAI-compatible APIs**, with **built-in inference engine** for RAG, making it a **powerful AI deployment solution**.
