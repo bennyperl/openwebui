@@ -18,6 +18,7 @@
 	import { getPromptItems } from '$lib/apis/prompts';
 	import { getSkillItems } from '$lib/apis/skills';
 	import { getToolList } from '$lib/apis/tools';
+	import { getChatList } from '$lib/apis/chats';
 	import Tooltip from '$lib/components/common/Tooltip.svelte';
 	import Sidebar from '$lib/components/icons/Sidebar.svelte';
 	import SplitCreateButton from '$lib/components/common/SplitCreateButton.svelte';
@@ -42,19 +43,21 @@
 	$: activeWorkspaceSection = $page.url.pathname.split('/')[2] ?? '';
 	$: visibleActions = $workspaceActions.filter((action) => action.visible ?? true);
 
+	$: canViewModels = $user?.role === 'admin' || $user?.permissions?.workspace?.models;
+	$: canViewKnowledge = $user?.role === 'admin' || $user?.permissions?.workspace?.knowledge;
+	$: canViewPrompts = $user?.role === 'admin' || $user?.permissions?.workspace?.prompts;
+	$: canViewSkills = $user?.role === 'admin' || $user?.permissions?.workspace?.skills;
+	$: canViewTools =
+		$config?.features?.enable_plugins &&
+		($user?.role === 'admin' || $user?.permissions?.workspace?.tools);
+	$: canViewChats =
+		$user?.role === 'admin' || ($user?.permissions?.workspace?.chats ?? true);
+
 	const getCount = (res: any) => res?.total ?? (Array.isArray(res) ? res.length : null);
 	const formatCount = (count: number | null) => formatNumber(count ?? 0);
 
 	const loadWorkspaceCounts = async () => {
-		const canViewModels = $user?.role === 'admin' || $user?.permissions?.workspace?.models;
-		const canViewKnowledge = $user?.role === 'admin' || $user?.permissions?.workspace?.knowledge;
-		const canViewPrompts = $user?.role === 'admin' || $user?.permissions?.workspace?.prompts;
-		const canViewSkills = $user?.role === 'admin' || $user?.permissions?.workspace?.skills;
-		const canViewTools =
-			$config?.features?.enable_plugins &&
-			($user?.role === 'admin' || $user?.permissions?.workspace?.tools);
-
-		const [modelRes, knowledgeRes, promptRes, skillRes, toolRes] = await Promise.all([
+		const [modelRes, knowledgeRes, promptRes, skillRes, toolRes, chatRes] = await Promise.all([
 			canViewModels
 				? getModelItems(localStorage.token, null, null, null, null, null, 1).catch(() => null)
 				: null,
@@ -65,7 +68,10 @@
 				? getPromptItems(localStorage.token, null, null, null, null, null, 1).catch(() => null)
 				: null,
 			canViewSkills ? getSkillItems(localStorage.token, null, null, 1).catch(() => null) : null,
-			canViewTools ? getToolList(localStorage.token).catch(() => null) : null
+			canViewTools ? getToolList(localStorage.token).catch(() => null) : null,
+			canViewChats
+				? getChatList(localStorage.token, null, true, true).catch(() => null)
+				: null
 		]);
 
 		workspaceCounts.set({
@@ -73,30 +79,24 @@
 			knowledge: getCount(knowledgeRes),
 			prompts: getCount(promptRes),
 			skills: getCount(skillRes),
-			tools: getCount(toolRes)
+			tools: getCount(toolRes),
+			chats: getCount(chatRes)
 		});
 	};
 
 	onMount(async () => {
 		if ($user?.role !== 'admin') {
-			if ($page.url.pathname.includes('/models') && !$user?.permissions?.workspace?.models) {
+			if ($page.url.pathname.includes('/models') && !canViewModels) {
 				goto('/', { replaceState: true });
-			} else if (
-				$page.url.pathname.includes('/knowledge') &&
-				!$user?.permissions?.workspace?.knowledge
-			) {
+			} else if ($page.url.pathname.includes('/knowledge') && !canViewKnowledge) {
 				goto('/', { replaceState: true });
-			} else if (
-				$page.url.pathname.includes('/prompts') &&
-				!$user?.permissions?.workspace?.prompts
-			) {
+			} else if ($page.url.pathname.includes('/prompts') && !canViewPrompts) {
 				goto('/', { replaceState: true });
-			} else if (
-				$page.url.pathname.includes('/tools') &&
-				(!$config?.features?.enable_plugins || !$user?.permissions?.workspace?.tools)
-			) {
+			} else if ($page.url.pathname.includes('/tools') && !canViewTools) {
 				goto('/', { replaceState: true });
-			} else if ($page.url.pathname.includes('/skills') && !$user?.permissions?.workspace?.skills) {
+			} else if ($page.url.pathname.includes('/skills') && !canViewSkills) {
+				goto('/', { replaceState: true });
+			} else if ($page.url.pathname.includes('/chats') && !canViewChats) {
 				goto('/', { replaceState: true });
 			}
 		}
@@ -145,7 +145,7 @@
 					<div
 						class="flex min-w-0 mr-1.5 items-center gap-0.5 md:gap-1 scrollbar-none overflow-x-auto w-fit text-center text-sm font-normal rounded-full bg-transparent py-1 touch-auto pointer-events-auto"
 					>
-						{#if $user?.role === 'admin' || $user?.permissions?.workspace?.models}
+						{#if canViewModels}
 							<a
 								draggable="false"
 								aria-current={activeWorkspaceSection === 'models' ? 'page' : null}
@@ -162,7 +162,7 @@
 							</a>
 						{/if}
 
-						{#if $user?.role === 'admin' || $user?.permissions?.workspace?.knowledge}
+						{#if canViewKnowledge}
 							<a
 								draggable="false"
 								aria-current={activeWorkspaceSection === 'knowledge' ? 'page' : null}
@@ -179,7 +179,7 @@
 							</a>
 						{/if}
 
-						{#if $user?.role === 'admin' || $user?.permissions?.workspace?.prompts}
+						{#if canViewPrompts}
 							<a
 								draggable="false"
 								aria-current={activeWorkspaceSection === 'prompts' ? 'page' : null}
@@ -196,7 +196,7 @@
 							</a>
 						{/if}
 
-						{#if $user?.role === 'admin' || $user?.permissions?.workspace?.skills}
+						{#if canViewSkills}
 							<a
 								draggable="false"
 								aria-current={activeWorkspaceSection === 'skills' ? 'page' : null}
@@ -213,7 +213,7 @@
 							</a>
 						{/if}
 
-						{#if $config?.features?.enable_plugins && ($user?.role === 'admin' || $user?.permissions?.workspace?.tools)}
+						{#if canViewTools}
 							<a
 								draggable="false"
 								aria-current={activeWorkspaceSection === 'tools' ? 'page' : null}
@@ -226,6 +226,23 @@
 								<span>{$i18n.t('Tools')}</span>
 								<span class="text-sm opacity-60">
 									{formatCount($workspaceCounts.tools)}
+								</span>
+							</a>
+						{/if}
+
+						{#if canViewChats}
+							<a
+								draggable="false"
+								aria-current={activeWorkspaceSection === 'chats' ? 'page' : null}
+								class="min-w-fit px-1 text-sm inline-flex items-center gap-1 {activeWorkspaceSection ===
+								'chats'
+									? 'text-gray-900 dark:text-gray-100'
+									: 'text-gray-300 dark:text-gray-600 hover:text-gray-700 dark:hover:text-white'} transition select-none"
+								href="/workspace/chats"
+							>
+								<span>{$i18n.t('Chats')}</span>
+								<span class="text-sm opacity-60">
+									{formatCount($workspaceCounts.chats)}
 								</span>
 							</a>
 						{/if}

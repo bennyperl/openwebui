@@ -40,6 +40,18 @@ This document logs local environment setup steps, custom fixes, and completed ta
     5. **Post-Submission Reset:** Upon sending the message in `submitHandler`, `params.system` is automatically cleared so the custom file system prompt does not remain active for subsequent messages in the chat session.
   * **State Binding:** Connected `params.system` binding through `Chat.svelte`, `Placeholder.svelte`, and `MessageInput.svelte` so the system prompt flows to the model request payload and persists with the chat session.
 
+### Task 4: Workspace Chats Management Tab
+* **Date:** August 25, 2026
+* **Status:** Completed
+* **Summary of Changes & Architectural Decision:**
+  1. **Workspace Navigation & Route:** Added `'chats'` section to `WorkspaceSection` type and `workspaceCounts` store (`src/lib/stores/index.ts`), created `/workspace/chats` route (`src/routes/(app)/workspace/chats/+page.svelte`), and added the "Chats" navigation tab to `src/routes/(app)/workspace/+layout.svelte`.
+  2. **Shared `ChatList` Component & Model Display:** Refactored `Chats.svelte` to reuse `ChatList.svelte` (the same component used on the main home page). Extended `ChatList.svelte` with `showModel` prop to display the model pill in a dedicated column with header sorting for `title`, `model`, and `updated_at`.
+  3. **Inline Chat Title Editing:** Added an inline edit pencil icon next to the chat name text (in `ChatList.svelte`). Clicking the icon allows inline editing, and the title updates locally immediately with backend persistence (`updateChatById`) when editing ends (pressing `Enter` or clicking `Save`). If the title remains unchanged, saving exits silently without triggering an unnecessary API call or toast notification.
+  4. **Permission Integration:** Extended workspace permission checks (`canViewChats = $user?.role === 'admin' || ($user?.permissions?.workspace?.chats ?? true)`) across `+layout.svelte`, `Sidebar.svelte`, and `Permissions.svelte`.
+  * **Architectural Note on Chat Model Info & Backend Endpoint:**
+    * *Current Frontend-Only Implementation:* The `GET /api/v1/chats/` list endpoint returns lightweight summary data omiting model information. To display the used model in the Workspace Chats list, full chat data for each item is fetched asynchronously via `getChatById`.
+    * *Fullstack Architecture Note:* In a fullstack task scope with backend access, the optimal solution would be to update the backend endpoint (`GET /api/v1/chats/` in `backend/open_webui/routers/chats.py` and `ChatTitleIdResponse` schema) to include the `models` / `model` field directly in the summary payload. This would eliminate all N+1 `getChatById` HTTP requests on the client.
+
 ---
 
 ## Future Tasks / Backlog

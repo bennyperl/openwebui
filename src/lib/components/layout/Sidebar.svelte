@@ -161,7 +161,8 @@
 					$user?.permissions?.workspace?.knowledge ||
 					$user?.permissions?.workspace?.prompts ||
 					$user?.permissions?.workspace?.tools ||
-					$user?.permissions?.workspace?.skills
+					$user?.permissions?.workspace?.skills ||
+					$user?.permissions?.workspace?.chats
 				);
 			case 'automations':
 				return (

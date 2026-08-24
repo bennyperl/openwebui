@@ -226,6 +226,21 @@
 					</div>
 				</div>
 			{/if}
+
+			<div class="flex w-full justify-between">
+				<div class=" self-center text-xs font-normal">
+					{$i18n.t('Chats Access')}
+				</div>
+				<Switch bind:state={permissions.workspace.chats} ariaLabel={$i18n.t('Chats Access')} />
+			</div>
+
+			{#if defaultPermissions?.workspace?.chats && !permissions.workspace.chats}
+				<div class="pb-0.5">
+					<div class="text-xs text-gray-500">
+						{$i18n.t('This is a default user permission and will remain enabled.')}
+					</div>
+				</div>
+			{/if}
 		</div>
 	</div>
 
