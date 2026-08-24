@@ -2765,6 +2765,9 @@
 		prompt = '';
 		const _files = structuredClone(files);
 		files = [];
+		if (params?.system) {
+			delete params.system;
+		}
 		messageInput?.setText('');
 
 		await submitPrompt(userPrompt, _files);
@@ -3956,6 +3959,7 @@
 										{taskIds}
 										bind:selectedModels
 										bind:files
+										bind:params
 										bind:prompt
 										bind:autoScroll
 										bind:selectedToolIds
@@ -4075,6 +4079,7 @@
 										{taskIds}
 										bind:selectedModels
 										bind:files
+										bind:params
 										bind:prompt
 										bind:autoScroll
 										bind:selectedToolIds
@@ -4122,6 +4127,7 @@
 									bind:selectedModels
 									bind:messageInput
 									bind:files
+									bind:params
 									bind:prompt
 									bind:autoScroll
 									bind:selectedToolIds

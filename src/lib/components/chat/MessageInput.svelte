@@ -99,6 +99,7 @@
 	import Dropdown from '../common/Dropdown.svelte';
 
 	import CommandSuggestionList from './MessageInput/CommandSuggestionList.svelte';
+	import FileSystemPrompt from './MessageInput/FileSystemPrompt.svelte';
 	import Knobs from '../icons/Knobs.svelte';
 	import ValvesModal from '../workspace/common/ValvesModal.svelte';
 	import Note from '../icons/Note.svelte';
@@ -149,6 +150,9 @@
 
 	export let prompt = '';
 	export let files = [];
+	export let params = {};
+
+	let showFileSystemPrompt = false;
 
 	export let selectedToolIds = [];
 	export let selectedSkillIds = [];
@@ -1709,6 +1713,8 @@
 										{/if}
 									{/each}
 								</div>
+
+								<FileSystemPrompt bind:params bind:showFileSystemPrompt />
 							{/if}
 
 							<div class="px-2">

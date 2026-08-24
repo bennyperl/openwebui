@@ -42,6 +42,7 @@
 
 	export let prompt = '';
 	export let files = [];
+	export let params = {};
 	export let messageInput = null;
 
 	export let selectedToolIds = [];
@@ -218,6 +219,7 @@
 						{history}
 						bind:selectedModels
 						bind:files
+						bind:params
 						bind:prompt
 						bind:autoScroll
 						bind:selectedToolIds
