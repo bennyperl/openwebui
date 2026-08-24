@@ -70,5 +70,3 @@ This document logs local environment setup steps, custom fixes, completed tasks,
   * **Generic Boolean Toggle Helper:** A reusable function/handler to toggle boolean fields without repeating individual `toggle...()` functions for each switch.
   * **Generic Field Update Helper:** A standardized input change handler to update target setting keys/fields dynamically.
 
-
-Created by [Timothy Jaeryang Baek](https://github.com/tjbck) - Let's make Open WebUI even more amazing together! 💪
